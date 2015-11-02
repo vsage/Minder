@@ -27,8 +27,10 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('CardsCtrl', function($scope, $http, TDCardDelegate) {
-  console.log('CARDS CTRL');
+.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory) {
+  
+  var cardSwipedLastDirection = "";
+
   var cardTypes = [
     { image: 'https://pbs.twimg.com/profile_images/659397340936077312/tkm8w-o4_400x400.png' },
   ];
@@ -38,65 +40,48 @@ angular.module('starter.controllers', [])
 
   $scope.cardDestroyed = function(index) {
     $scope.cards.splice(index, 1);
-    
+    console.log(cardSwipedLastDirection + "SWIPE");
+    $scope.addCard();
   };
 
   $scope.addCard = function() {
-    $http.get("https://randomuser.me/api/").success(function(data){
-      var newUser = data.results[0].user;
-      var userImage = newUser.picture.large;
-      var cardType = {image : userImage}
 
-      console.log(userImage);
-      $scope.cards.push(angular.extend({}, cardType));
-      console.log($scope.cards);
-    });
-  }
+        
+
+
+        $http.get("https://randomuser.me/api/").success(function(data){
+
+        var newUser = data.results[0].user;
+        var userImage = newUser.picture.large;
+        
+        console.log(userImage);
+        $ImageCacheFactory.Cache([userImage]).then(function(){
+          var cardType = {image : userImage};
+          $scope.cards.push(angular.extend({}, cardType));
+          console.log("Images done loading!");
+        },function(failed){
+          console.log("failed");
+        });
+
+        
+        });
+    
+  };
 
   $scope.cardSwipedLeft = function(index) {
-    console.log('LEFT SWIPE');
-    $scope.addCard();
+    cardSwipedLastDirection = "left";
   };
 
   $scope.cardSwipedRight = function(index) {
-    console.log('RIGHT SWIPE');
-    $scope.addCard();
+    cardSwipedLastDirection = "right"; 
   };
 
   $scope.cardPartialSwipe = function(amt) {
     
   };
-    /*var newCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
-    newCard.id = Math.random();
-    $scope.cards.push(angular.extend({}, newCard));*/
-  
-    $scope.imgLoaded = function(img) {
 
-    var $img = $(img);
-    $img.parent().addClass('loaded');
-  };
-  
 })
 
 .controller('CardCtrl', function($scope, TDCardDelegate) {
-
- /* $scope.cardSwipedLeft = function(index) {
-    console.log('LEFT SWIPE');
-    alert(2);
-    $scope.addCard();
-  };
-  $scope.cardSwipedRight = function(index) {
-    console.log('RIGHT SWIPE');
-    alert(2);
-    $scope.addCard();
-  };*/
-
-  $scope.imgLoaded = function(img) {
-
-    var $img = $(img);
-    $img.parent().addClass('loaded');
-  };
-  
-  
 
 });

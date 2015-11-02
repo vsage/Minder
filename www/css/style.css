@@ -37,15 +37,6 @@ td-card.card-2 {
 
 td-card .image {
   position: relative;
-  opacity:1;
-
-  -moz-transition: opacity 2s; /* Firefox 4 */
-
-  -webkit-transition: opacity 2s; /* Safari and Chrome */
-
-  -o-transition: opacity 2s;
-
-  transition: opacity 2s;
 
 }
 
@@ -75,4 +66,22 @@ td-card img {
   -webkit-transition: 0.2s opacity linear;
   transition: 0.2s opacity linear;
   opacity: 0;
+}
+
+.spinner-wait-pic svg{
+  width: 28px;
+  height: 28px;
+
+}
+
+.spinner-wait-pic{
+  position: absolute;
+  top: 190px;
+  left: 50%;
+  margin-left: -14px;
+  display: none;
+}
+
+.spinner svg {
+  
 }
