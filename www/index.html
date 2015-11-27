@@ -15,8 +15,10 @@
     <script src="http://code.ionicframework.com/collide/0.0.4/collide.js"></script>
     <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+    <script src="lib/angular-socket-io/socket.min.js"></script>
 
-    <script src="http://code.ionicframework.com/contrib/ionic-contrib-tinder-cards/ionic.tdcards.js"></script>
+    <script src="js/ionic.tdcards.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
@@ -26,6 +28,7 @@
     <script src="js/controllers.js"></script>
     <script src="js/services.js"></script>
     <script src="js/lazy.js"></script>
+    
 
   </head>
 
@@ -33,7 +36,7 @@
     <!--
       The nav bar that will be updated as we navigate between views.
     -->
-    <ion-nav-bar class="bar-assertive">
+    <ion-nav-bar class="bar-balanced">
       <ion-nav-back-button>
       </ion-nav-back-button>
     </ion-nav-bar>
