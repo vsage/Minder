@@ -1,5 +1,47 @@
 angular.module('starter.controllers', [])
 
+.controller('AppCtrl', function($scope, $ionicPopup, $state, AuthService, AUTH_EVENTS) {
+  
+  //Login part
+/*  $scope.username = AuthService.username();
+ 
+  $scope.$on(AUTH_EVENTS.notAuthorized, function(event) {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Unauthorized!',
+      template: 'You are not allowed to access this resource.'
+    });
+  });
+ 
+  $scope.$on(AUTH_EVENTS.notAuthenticated, function(event) {
+    AuthService.logout();
+    $state.go('login');
+    var alertPopup = $ionicPopup.alert({
+      title: 'Session Lost!',
+      template: 'Sorry, You have to login again.'
+    });
+  });
+ 
+  $scope.setCurrentUsername = function(name) {
+    $scope.username = name;
+  };*/
+})
+
+.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService) {
+  $scope.data = {};
+ 
+  $scope.login = function(data) {
+    AuthService.login(data.username, data.password).then(function(authenticated) {
+      $state.go('tab.main', {}, {reload: true});
+      $scope.setCurrentUsername(data.username);
+    }, function(err) {
+      var alertPopup = $ionicPopup.alert({
+        title: 'Login failed!',
+        template: 'Please check your credentials!'
+      });
+    });
+  };
+})
+
 .controller('DashCtrl', function($scope) {})
 
 .controller('ChatsCtrl', function($scope, Chats) {
@@ -109,18 +151,10 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document) {
+.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate) {
   
   var cardSwipedLastDirection = "";
   var showSpinner=false;
-  
-
-
-
-  /*var cardTypes = [
-    { image: 'https://pbs.twimg.com/profile_images/659397340936077312/tkm8w-o4_400x400.png' },
-  ];*/
-
   var listOfNewUsersPrep=[{image:"https://randomuser.me/api/portraits/women/24.jpg"},
           {image:"https://randomuser.me/api/portraits/women/25.jpg"},
           {image:"https://randomuser.me/api/portraits/women/26.jpg"},
@@ -160,13 +194,15 @@ angular.module('starter.controllers', [])
 
       var newUser = data.results[0].user;
       var userImage = newUser.picture.large;
-      var cardType = {image : userImage};
+      var userName = newUser.name.first +" "+ newUser.name.last;
+      var cardType = {image : userImage, username : userName};
       
       $ImageCacheFactory.Cache([userImage]).then(function(){
         
         cardType.id = Math.random();
         $scope.cards.push(angular.extend({},cardType));
         sortCards();
+        //console.log(cardType.id);
 
       },function(failed){
         console.log("failed");
@@ -192,10 +228,6 @@ angular.module('starter.controllers', [])
 
   };
 
-})
-
-.controller('CardCtrl', function($scope, $ionicModal, TDCardDelegate) {
-
   $ionicModal.fromTemplateUrl('templates/user-modal.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -203,10 +235,13 @@ angular.module('starter.controllers', [])
     $scope.modal = modal;
   });
   $scope.openModal = function() {
+    $scope.hideSlideBox = false;
     $scope.modal.show();
   };
   $scope.closeModal = function() {
+    $scope.hideSlideBox = true;
     $scope.modal.hide();
+    $ionicSlideBoxDelegate.slide(0);
   };
   //Cleanup the modal when we're done with it!
   $scope.$on('$destroy', function() {
@@ -221,4 +256,10 @@ angular.module('starter.controllers', [])
     // Execute action
   });
 
-});
+})
+
+
+.controller('CardCtrl', function($scope, $ionicModal, TDCardDelegate) {
+})
+
+;

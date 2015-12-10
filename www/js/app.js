@@ -31,6 +31,11 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
   // Each state's controller can be found in controllers.js
   $stateProvider
 
+    .state('login', {
+    url: '/login',
+    templateUrl: 'templates/login.html',
+    controller: 'LoginCtrl'
+  })
   // setup an abstract state for the tabs directive
     .state('tab', {
     url: '/tab',
@@ -59,15 +64,15 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
         }
       }
     })
-    .state('tab.chat-detail', {
-      url: '/chats/:chatId',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/chat-detail.html',
-          controller: 'ChatDetailCtrl'
-        }
+  .state('tab.chat-detail', {
+    url: '/chats/:chatId',
+    views: {
+      'tab-chats': {
+        templateUrl: 'templates/chat-detail.html',
+        controller: 'ChatDetailCtrl'
       }
-    })
+    }
+  })
 
   .state('tab.main', {
     url: '/main',
@@ -80,8 +85,13 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
   });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+  $urlRouterProvider.otherwise('/tab/main');
 
+})
+
+.run(function(){
+  //$httpBackend.whenGET(/templates\/\w+.*/).passThrough();
+  //$httpBackend.whenGET(/https:\/\/randomuser.me\/\w+.*/).passThrough();
 })
 
 .directive('noScroll', function($document) {
