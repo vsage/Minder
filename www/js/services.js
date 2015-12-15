@@ -13,7 +13,6 @@ angular.module('starter.services', [])
   function loadUserCredentials() {
 
     var token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
-    console.log(token);
     if (token) {
       useCredentials(token);
     }
@@ -61,7 +60,9 @@ angular.module('starter.services', [])
   };
  
   var logout = function() {
+    console.log(authToken+"avant logout");
     destroyUserCredentials();
+    console.log(authToken+"après logout");
   };
  
   var isAuthorized = function(authorizedRoles) {

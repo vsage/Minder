@@ -5,9 +5,12 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.tinderCards', 'ionic.ion.imageCacheFactory'])
+angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.tinderCards', 'ionic.ion.imageCacheFactory','ngOpenFB'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, ngFB) {
+  
+  ngFB.init({appId: '661996340610249'});
+
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)

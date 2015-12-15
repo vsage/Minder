@@ -26,13 +26,39 @@ angular.module('starter.controllers', [])
   };*/
 })
 
-.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService) {
+.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB) {
+
+  $scope.fbLogin = function () {
+    ngFB.login({scope: 'email'}).then(
+        function (response) {
+          console.log(response);
+            if (response.status === 'connected') {
+                console.log('Facebook login succeeded');
+                
+            } else {
+                alert('Facebook login failed');
+            }
+        });
+  };
+  $scope.fbLogout = function () {
+    ngFB.logout().then(
+      function (response) {
+      })
+  };
+
+  $scope.fbStatus = function () {
+    ngFB.getLoginStatus().then(
+      function (response) {
+        console.log(response);
+      })
+  };
+
   $scope.data = {};
  
   $scope.login = function(data) {
     AuthService.login(data.username, data.password).then(function(authenticated) {
       $state.go('tab.main', {}, {reload: true});
-      $scope.setCurrentUsername(data.username);
+      //$scope.setCurrentUsername(data.username);
     }, function(err) {
       var alertPopup = $ionicPopup.alert({
         title: 'Login failed!',
@@ -145,9 +171,13 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('AccountCtrl', function($scope) {
+.controller('AccountCtrl', function($scope, $state, AuthService) {
   $scope.settings = {
     enableFriends: true
+  };
+  $scope.logout = function() {
+    AuthService.logout();
+    $state.go('login');
   };
 })
 
