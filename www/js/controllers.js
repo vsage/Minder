@@ -32,14 +32,29 @@ angular.module('starter.controllers', [])
     ngFB.login({scope: 'email'}).then(
         function (response) {
           console.log(response);
-            if (response.status === 'connected') {
-                console.log('Facebook login succeeded');
-                
-            } else {
-                alert('Facebook login failed');
-            }
-        });
-  };
+          if (response.status === 'connected') {
+
+            console.log('Facebook login succeeded');
+
+            ngFB.api({
+                path: '/me',
+                params: {fields: 'id,name'}
+              }).then(
+              function (data) {
+                  window.localStorage.setItem("fbId", data.id);
+                  $state.go('tab.main', {}, {reload: true});
+              },
+              function (error) {
+                  alert('Facebook error: ' + error.error_description);
+              });
+                      
+          } else {
+              alert('Facebook login failed');
+          }
+        }
+      );
+    };
+
   $scope.fbLogout = function () {
     ngFB.logout().then(
       function (response) {
@@ -181,7 +196,7 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate) {
+.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB) {
   
   var cardSwipedLastDirection = "";
   var showSpinner=false;
@@ -219,7 +234,8 @@ angular.module('starter.controllers', [])
 
 
   $scope.addCard = function() {
-    
+
+
     $http.get("https://randomuser.me/api/").success(function(data){
 
       var newUser = data.results[0].user;

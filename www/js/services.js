@@ -4,7 +4,7 @@ angular.module('starter.services', [])
 //Gestion du Login
 
 .service('AuthService', function($q, $http, USER_ROLES) {
-  var LOCAL_TOKEN_KEY = 'yourTokenKey';
+  var LOCAL_TOKEN_KEY = 'serverToken';
   var username = '';
   var isAuthenticated = false;
   var role = '';
@@ -45,6 +45,7 @@ angular.module('starter.services', [])
     isAuthenticated = false;
     $http.defaults.headers.common['X-Auth-Token'] = undefined;
     window.localStorage.removeItem(LOCAL_TOKEN_KEY);
+    window.localStorage.removeItem("fbId");
   }
  
   var login = function(name, pw) {
@@ -71,7 +72,7 @@ angular.module('starter.services', [])
     }
     return (isAuthenticated && authorizedRoles.indexOf(role) !== -1);
   };
- 
+
   loadUserCredentials();
  
   return {
