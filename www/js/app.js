@@ -8,7 +8,7 @@
 angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.tinderCards', 'ionic.ion.imageCacheFactory','ngOpenFB'])
 
 .run(function($ionicPlatform, ngFB) {
-  
+
   ngFB.init({appId: '661996340610249'});
 
   $ionicPlatform.ready(function() {
@@ -48,12 +48,12 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
 
   // Each tab has its own nav history stack:
 
-  .state('tab.dash', {
-    url: '/dash',
+  .state('tab.settings', {
+    url: '/settings',
     views: {
-      'tab-dash': {
-        templateUrl: 'templates/tab-dash.html',
-        controller: 'DashCtrl'
+      'tab-settings': {
+        templateUrl: 'templates/tab-settings.html',
+        controller: 'SettingsCtrl'
       }
     }
   })
@@ -109,3 +109,13 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
     }
   }
 })
+
+.directive('inlineRadio', function(ionRadioDirective) {
+  return angular.extend({}, ionRadioDirective[0], {
+    template: '<label class="item item-radio">' +
+                '<input type="radio" name="radio-group">' +
+                '<div class="item-content disable-pointer-events" ng-transclude></div>' +
+                '<i class="radio-icon disable-pointer-events icon ion-close"></i>' +
+              '</label>'
+  });
+});

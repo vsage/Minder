@@ -180,3 +180,46 @@ p.notification{
 .username-list {
   line-height: 38px;
 }
+
+/*Settings*/
+
+.list.list-inline {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-direction: normal;
+  -webkit-box-orient: horizontal;
+  -webkit-flex-direction: row;
+  -moz-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  -moz-flex-wrap: nowrap;
+  -ms-flex-wrap: none;
+  flex-wrap: nowrap;
+  width: 100%;
+  /* Radio item */
+  /* Checkbox */
+  /* /!\ not fully working with long-text on */ }
+  .list.list-inline .item {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -moz-box-flex: 1;
+    -moz-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    font-size: inherit; }
+  .list.list-inline .item-radio .item-content {
+    /* give some room to the right for the checkmark icon */
+    padding: 12px;
+    padding-right: 16px; }
+  .list.list-inline .item-radio .radio-icon {
+    /* checkmark icon will be hidden by default */
+    padding: 5px; }
+  .list.list-inline .item-checkbox {
+    padding-left: 44px; }
+    .list.list-inline .item-checkbox .checkbox {
+      padding-left: 0; }
