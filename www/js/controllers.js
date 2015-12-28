@@ -26,7 +26,15 @@ angular.module('starter.controllers', [])
   };*/
 })
 
-.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB) {
+.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB, $q) {
+
+$scope.testParse = function () {
+  var TestObject = Parse.Object.extend("TestObject");
+  var testObject = new TestObject();
+  testObject.save({foo: "bar"}).then(function(object) {
+    alert("yay! it worked");
+  });
+}
 
   $scope.fbLogin = function () {
     ngFB.login({scope: 'email'}).then(
@@ -53,7 +61,36 @@ angular.module('starter.controllers', [])
           }
         }
       );
-    };
+    Parse.FacebookUtils.logIn("user_likes,email", {
+      success: function(user) {
+        if (!user.existed()) {
+          alert("User signed up and logged in through Facebook!");
+        } else {
+          alert("User logged in through Facebook!");
+        }
+        $state.go('tab.main', {}, {reload: true});
+      },
+      error: function(user, error) {
+        alert("User cancelled the Facebook login or did not fully authorize.");
+      }
+    });
+  };
+
+  $scope.lastName = function(){
+
+      var deferred = $q.defer();
+      FB.api('/me', {
+          fields: 'last_name'
+      }, function(response) {
+          if (!response || response.error) {
+              deferred.reject('Error occured');
+          } else {
+              deferred.resolve(response);
+          }
+      });
+      console.log(deferred.promise);
+        
+  }
 
   $scope.fbLogout = function () {
     ngFB.logout().then(

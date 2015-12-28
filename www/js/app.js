@@ -93,6 +93,26 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
 })
 
 .run(function(){
+  Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd", "OYtwjvjKod7pohTqvl5F6qzSOwGfNMPNRDyGZxgN");
+   window.fbAsyncInit = function() {
+    Parse.FacebookUtils.init({ // this line replaces FB.init({
+      appId      : '661996340610249', // Facebook App ID
+      status     : true,  // check Facebook Login status
+      cookie     : true,  // enable cookies to allow Parse to access the session
+      xfbml      : true,  // initialize Facebook social plugins on the page
+      version    : 'v2.3' // point to the latest Facebook Graph API version
+    });
+
+        // Run code after the Facebook SDK is loaded.
+  };
+
+      (function(d, s, id){
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
   //$httpBackend.whenGET(/templates\/\w+.*/).passThrough();
   //$httpBackend.whenGET(/https:\/\/randomuser.me\/\w+.*/).passThrough();
 })
@@ -110,6 +130,7 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
   }
 })
 
+// secondary: put in line radio buttons (in settings)
 .directive('inlineRadio', function(ionRadioDirective) {
   return angular.extend({}, ionRadioDirective[0], {
     template: '<label class="item item-radio">' +

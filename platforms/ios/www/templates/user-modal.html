@@ -1,0 +1,39 @@
+
+<ion-modal-view>
+  <ion-content scroll="false" ng-hide="hideSlideBox">
+
+  <div class="list card">
+
+    <ion-slide-box on-slide-changed="slideHasChanged($index)">
+      <ion-slide>
+        <div class="box blue">
+          <div class="item item-image">
+            <img ng-src="{{cards[0].image}}">
+          </div>
+        </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="box yellow">
+          <div class="item item-image">
+            <img ng-src="{{cards[0].image}}">
+          </div>
+        </div>
+      </ion-slide>
+      <ion-slide>
+        <div class="box pink">
+          <div class="item item-image">
+            <img ng-src="{{cards[0].image}}">
+          </div>
+        </div>
+      </ion-slide>
+    </ion-slide-box>
+    <h2>{{cards[0].username}}</h2>
+  </div>
+
+  <div class="row ">
+    <div class="col col-33"><button class="button button-clear button-assertive button-full" ng-click="cardSwipedLeft($index); cardDestroyed($index); closeModal();">Non</button></div>
+    <div class="col col-33 col-offset-33"><button class="button button-clear button-balanced button-full" ng-click="cardSwipedRight($index); cardDestroyed($index); closeModal();">Like</button></div>
+  </div>
+
+  </ion-content>
+</ion-modal-view>

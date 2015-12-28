@@ -1,0 +1,32 @@
+<ion-view view-title="Réglages">
+  <ion-content class="">
+    <div class="list">
+      <div class="item item-divider">
+        Je suis :
+      </div>
+      <div class="list list-inline padding">
+        <ion-radio ng-model="choice" ng-value="'man'" ng-change="genderChanged(choice)">Un Homme</ion-radio>
+        <ion-radio ng-model="choice" ng-value="'woman'" ng-change="genderChanged(choice)">Une Femme</ion-radio>
+      </div>
+      
+       <div class="item item-divider">
+        Distance de recherche : {{dist}} km
+      </div>
+      <div class="item range range-positive padding">
+        <i class="icon ion-ios-minus-outline"></i>
+        <input type="range" name="volume" min="0" max="100" value="40" ng-model="dist">
+        <i class="icon ion-ios-plus"></i>
+      </div>
+      <label class="item item-input item-select">
+        <div class="input-label">
+          Lightsaber
+        </div>
+        <select>
+          <option>Blue</option>
+          <option selected>Green</option>
+          <option>Red</option>
+        </select>
+      </label>
+    </div>
+  </ion-content>
+</ion-view>

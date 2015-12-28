@@ -1,0 +1,30 @@
+<ion-view view-title="People">
+<ion-nav-buttons side="right">
+      <button class="button" ng-click="logout()">
+        logout
+      </button>
+</ion-nav-buttons>
+ <!--  <ion-content class="padding"> -->
+
+<ion-pane ng-controller="CardsCtrl" view-title="Match">
+
+  <td-cards>
+    <td-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-swipe-left="cardSwipedLeft($index)" on-swipe-right="cardSwipedRight($index)" on-swipe-down="cardSwipedRight($index)" on-partial-swipe="cardPartialSwipe(amt)" class="card-{{$index}}">
+      <div class="image" ng-click="openModal()">
+        <div class="no-text" ng-style="{'opacity':noText}">NOPE</div>
+        <img ng-src="{{card.image}}" alt="" >
+        <div class="yes-text" ng-style="{'opacity':yesText}">LIKE</div>
+      </div>
+    </td-card>
+  </td-cards>
+  <ion-spinner class="spinner-assertive spinner-wait-pic" icon="ripple" ng-show="showSpinner"></ion-spinner>
+  <div class="row buttons-choice-row">
+  	 <div class="col col-33"><button class="button button-clear button-assertive button-full " ng-click="cardSwipedLeft($index); cardDestroyed($index);">Non</button></div>
+  	 <div class="col col-33 col-offset-33"><button class="button button-clear button-balanced button-full" ng-click="cardDestroyed($index);">Like</button></div>
+  	
+  </div>
+  
+</ion-pane>
+
+<!--   </ion-content> -->
+</ion-view>
