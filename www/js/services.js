@@ -46,6 +46,7 @@ angular.module('starter.services', [])
     $http.defaults.headers.common['X-Auth-Token'] = undefined;
     window.localStorage.removeItem(LOCAL_TOKEN_KEY);
     window.localStorage.removeItem("fbId");
+    window.localStorage.clear();
   }
  
   var login = function(name, pw) {
@@ -61,9 +62,7 @@ angular.module('starter.services', [])
   };
  
   var logout = function() {
-    console.log(authToken+"avant logout");
     destroyUserCredentials();
-    console.log(authToken+"après logout");
   };
  
   var isAuthorized = function(authorizedRoles) {
@@ -85,6 +84,56 @@ angular.module('starter.services', [])
   };
 })
 
+.service('SettingsService', function($rootScope,$timeout) {
+ 
+  function storeSimpleValue(key, value) {
+    window.localStorage.setItem(key, value);
+  };
+
+  function getAge(dateString) {
+    var today = new Date();
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+  }
+
+  var storeLoginSettings = function(response){
+    storeSimpleValue("userFirstName",response.first_name);
+    storeSimpleValue("userLastName",response.last_name);
+    if(!window.localStorage.getItem("pictures")){
+      pics = new Array();
+      pics.push(response.picture);
+      window.localStorage.setItem("pictures",JSON.stringify(pics));
+    }else{
+      pics = window.localStorage.getItem("pictures");
+      pics = JSON.parse(pics);
+      pics.push(response.picture);
+      window.localStorage.setItem("pictures",JSON.stringify(pics));
+    }
+    var age = getAge(response.birthday);
+    storeSimpleValue("age",age);
+    storeSimpleValue("gender",response.gender);
+
+    /*$timeout(function(){
+        $rootScope.$broadcast('settingsStored');
+    }, 1000);*/
+    /*$rootScope.$broadcast('settingsStored');*/
+    $rootScope.$broadcast('settingsStored');
+    console.log("broadcast");
+  }
+
+
+  return {
+    storeLoginSettings: storeLoginSettings,
+    username: function() {return username;}
+  };
+})
+
+
 .factory('AuthInterceptor', function ($rootScope, $q, AUTH_EVENTS) {
   return {
     responseError: function (response) {
@@ -100,8 +149,6 @@ angular.module('starter.services', [])
 .config(function ($httpProvider) {
    $httpProvider.interceptors.push('AuthInterceptor');
 })
-
-
 
 
 

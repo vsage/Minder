@@ -1,12 +1,23 @@
 <ion-view view-title="Réglages">
   <ion-content class="">
     <div class="list">
+      <div class="item">
+        
+        <h2>{{firstName}}</h2>
+        <p>{{age}} ans</p>
+      </div>
+
+      <div class="item item-body">
+        <img class="full-image" ng-src="{{pictures[0].data.url}}">
+        <label class="item-input">
+        <textarea placeholder="Votre description" ng-model="description" ng-change="descriptionChanged(description)" maxlength="200" rows="6"></textarea>
+        </label>
       <div class="item item-divider">
         Je suis :
       </div>
-      <div class="list list-inline padding">
-        <ion-radio ng-model="choice" ng-value="'man'" ng-change="genderChanged(choice)">Un Homme</ion-radio>
-        <ion-radio ng-model="choice" ng-value="'woman'" ng-change="genderChanged(choice)">Une Femme</ion-radio>
+      <div class="item list list-inline padding">
+        <ion-radio ng-model="gender" ng-value="'male'" ng-change="genderChanged(gender)">Un Homme</ion-radio>
+        <ion-radio ng-model="gender" ng-value="'female'" ng-change="genderChanged(gender)">Une Femme</ion-radio>
       </div>
       
        <div class="item item-divider">
@@ -14,19 +25,9 @@
       </div>
       <div class="item range range-positive padding">
         <i class="icon ion-ios-minus-outline"></i>
-        <input type="range" name="volume" min="0" max="100" value="40" ng-model="dist">
+        <input type="range" name="volume" min="0" max="100" value="40" ng-model="dist" ng-change="distanceChanged(dist)">
         <i class="icon ion-ios-plus"></i>
       </div>
-      <label class="item item-input item-select">
-        <div class="input-label">
-          Lightsaber
-        </div>
-        <select>
-          <option>Blue</option>
-          <option selected>Green</option>
-          <option>Red</option>
-        </select>
-      </label>
     </div>
   </ion-content>
 </ion-view>

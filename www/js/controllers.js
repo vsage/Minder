@@ -26,23 +26,55 @@ angular.module('starter.controllers', [])
   };*/
 })
 
-.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB, $q) {
+.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB, $q, SettingsService, $rootScope) {
 
-$scope.testParse = function () {
-  var TestObject = Parse.Object.extend("TestObject");
-  var testObject = new TestObject();
-  testObject.save({foo: "bar"}).then(function(object) {
-    alert("yay! it worked");
-  });
-}
+  $scope.testParse = function () {
+    var TestObject = Parse.Object.extend("BaudelaireObject");
+    var testObject = new TestObject();
+    testObject.save({foo: "bar"}).then(function(object) {
+      alert("yay! it worked");
+    });
+  }
+
+  var getUserInfo = function(){
+   var deferred = $q.defer();
+      FB.api('/me', {
+          fields: 'first_name,last_name,picture.height(320),birthday,gender',
+      }, function(response) {
+          if (!response || response.error) {
+              deferred.reject('Error occured');
+          } else {
+              deferred.resolve(response);
+          }
+      });
+    return deferred.promise;
+  }
 
   $scope.fbLogin = function () {
-    ngFB.login({scope: 'email'}).then(
-        function (response) {
-          console.log(response);
-          if (response.status === 'connected') {
+    
+    Parse.FacebookUtils.logIn("email,user_birthday", {
+      success: function(user) {
+        console.log('Facebook login succeeded');
+        if (!user.existed()) {       
+        } else {
+        }
+        getUserInfo().then(function(response){
+          
+          SettingsService.storeLoginSettings(response);
+          
+          //console.log(response);
+        })
+        $state.go('tab.main', {}, {reload: false});
+      },
+      error: function(user, error) {
+        alert("User cancelled the Facebook login or did not fully authorize.");
+      }
+    });
 
-            console.log('Facebook login succeeded');
+    /*ngFB.login({scope: 'email'}).then(
+        function (response) {
+          
+          if (response.status === 'connected') {
 
             ngFB.api({
                 path: '/me',
@@ -60,36 +92,11 @@ $scope.testParse = function () {
               alert('Facebook login failed');
           }
         }
-      );
-    Parse.FacebookUtils.logIn("user_likes,email", {
-      success: function(user) {
-        if (!user.existed()) {
-          alert("User signed up and logged in through Facebook!");
-        } else {
-          alert("User logged in through Facebook!");
-        }
-        $state.go('tab.main', {}, {reload: true});
-      },
-      error: function(user, error) {
-        alert("User cancelled the Facebook login or did not fully authorize.");
-      }
-    });
+      );*/
   };
 
   $scope.lastName = function(){
-
-      var deferred = $q.defer();
-      FB.api('/me', {
-          fields: 'last_name'
-      }, function(response) {
-          if (!response || response.error) {
-              deferred.reject('Error occured');
-          } else {
-              deferred.resolve(response);
-          }
-      });
-      console.log(deferred.promise);
-        
+      //console.log(deferred.promise); 
   }
 
   $scope.fbLogout = function () {
@@ -106,7 +113,7 @@ $scope.testParse = function () {
   };
 
   $scope.data = {};
- 
+
   $scope.login = function(data) {
     AuthService.login(data.username, data.password).then(function(authenticated) {
       $state.go('tab.main', {}, {reload: true});
@@ -120,13 +127,70 @@ $scope.testParse = function () {
   };
 })
 
-.controller('SettingsCtrl', function($scope) {
+.controller('SettingsCtrl', function($scope,$rootScope,$timeout) {
   $scope.dist = 40;
-  $scope.choice="man";
+
+  $scope.applySettingsFromStorage = function(){
+     $timeout(function() {
+      if(firstName=window.localStorage.getItem("userFirstName")){
+        $scope.firstName = firstName;
+      }else{
+        $scope.firstName = "John"
+      }
+
+      if(lastName=window.localStorage.getItem("userLastName")){
+        $scope.lastName = lastName;
+      }else{
+        $scope.lastName = "Doe"
+      }
+
+      if(age=window.localStorage.getItem("age")){
+        $scope.age = age;
+      }else{
+        $scope.age = 0;
+      }
+
+      if(pics=window.localStorage.getItem("pictures")){
+        $scope.pictures = JSON.parse(pics);
+        //console.log($scope.pictures);
+      }else{
+        $scope.pictures = [];
+      }
+
+      if(gender=window.localStorage.getItem("gender")) {
+        $scope.gender = gender;
+      }else{
+        $scope.gender="male";
+      }
+
+      if(dist=window.localStorage.getItem("distance")) {
+        $scope.dist = dist;
+      }else{ 
+      }
+
+      if(desc=window.localStorage.getItem("description")) {
+        $scope.description = desc;
+      }else{
+      }
+    },1000);
+  };
+
+
 
   $scope.genderChanged = function (gender) {
-    console.log(gender);
+    window.localStorage.setItem("gender",gender);
+    $scope.gender=gender;
   };
+  $scope.distanceChanged = function (dist) {
+    window.localStorage.setItem("distance",dist);
+    $scope.dist = dist;
+  };
+  $scope.descriptionChanged = function (description) {
+    window.localStorage.setItem("description",description);
+    $scope.description=description;
+  };
+
+  $scope.applySettingsFromStorage();
 })
 
 .controller('ChatsCtrl', function($scope, Chats) {
@@ -238,7 +302,10 @@ $scope.testParse = function () {
     AuthService.logout();
     $state.go('login');
   };
+
+
 })
+
 
 .controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB) {
   
