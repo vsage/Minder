@@ -37,7 +37,7 @@ angular.module('starter.controllers', [])
   }
 
   var getUserInfo = function(){
-   var deferred = $q.defer();
+    var deferred = $q.defer();
       FB.api('/me', {
           fields: 'first_name,last_name,picture.height(320),birthday,gender',
       }, function(response) {
@@ -59,12 +59,12 @@ angular.module('starter.controllers', [])
         } else {
         }
         getUserInfo().then(function(response){
-          
+          AuthService.storeUserInformationOnServer(user,response);
           SettingsService.storeLoginSettings(response);
           
           //console.log(response);
         })
-        $state.go('tab.main', {}, {reload: false});
+        $state.go('tab.main', {}, {reload: true});
       },
       error: function(user, error) {
         alert("User cancelled the Facebook login or did not fully authorize.");
@@ -127,9 +127,13 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('SettingsCtrl', function($scope,$rootScope,$timeout) {
+.controller('SettingsCtrl', function($scope,$rootScope,$timeout,$q) {
+  $scope.$on("$ionicView.enter",function(){
+    $scope.applySettingsFromStorage();
+  })
+  
   $scope.dist = 40;
-
+  
   $scope.applySettingsFromStorage = function(){
      $timeout(function() {
       if(firstName=window.localStorage.getItem("userFirstName")){
@@ -172,10 +176,27 @@ angular.module('starter.controllers', [])
         $scope.description = desc;
       }else{
       }
-    },1000);
+    },300);
   };
 
+  $scope.updateValueOnServer = function(key, value){
+    var deferred = $q.defer();
+    var currentUser = Parse.User.current();
 
+    if (currentUser) {
+      currentUser.set(key, value);  // attempt to change username
+      currentUser.save(null, {
+        success: function() {
+          deferred.resolve("Updated value");
+        },error: function(){
+          deferred.reject('Error occured');
+        }
+      });
+    } else{
+
+    }
+    return deferred.promise;
+  };
 
   $scope.genderChanged = function (gender) {
     window.localStorage.setItem("gender",gender);
@@ -186,8 +207,12 @@ angular.module('starter.controllers', [])
     $scope.dist = dist;
   };
   $scope.descriptionChanged = function (description) {
-    window.localStorage.setItem("description",description);
-    $scope.description=description;
+
+    $scope.updateValueOnServer("description",description).then(function(response){
+      console.log(response);
+      window.localStorage.setItem("description",description);
+      $scope.description=description;
+    });
   };
 
   $scope.applySettingsFromStorage();
@@ -307,7 +332,7 @@ angular.module('starter.controllers', [])
 })
 
 
-.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB) {
+.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB, MatchingService, $q) {
   
   var cardSwipedLastDirection = "";
   var showSpinner=false;
@@ -343,28 +368,51 @@ angular.module('starter.controllers', [])
     }
   };
 
+  $scope.getUserFbInfo = function(fbId){
+    console.log(fbId);
+    var deferred = $q.defer();
+      FB.api(fbId, {
+          fields: 'picture.height(320).width(320)',
+      }, function(response) {
+          if (!response || response.error) {
+            console.log(response);
+              deferred.reject('Error occured');
+          } else {
+              deferred.resolve(response);
+          }
+      });
+    return deferred.promise;
+  }
 
   $scope.addCard = function() {
 
+    MatchingService.getUserOfGenderAndAgeAndDistance().then(function(persons) {
+      if(persons){
+        var fbId = persons[2].get("fbId");
+        var description = persons[2].get("description");
+        var firstName = persons[2].get("firstName");
+        $scope.getUserFbInfo(fbId).then(function(data){
 
-    $http.get("https://randomuser.me/api/").success(function(data){
+          if(data){
+            var pictureUrl = data.picture.data.url;
 
-      var newUser = data.results[0].user;
-      var userImage = newUser.picture.large;
-      var userName = newUser.name.first +" "+ newUser.name.last;
-      var cardType = {image : userImage, username : userName};
-      
-      $ImageCacheFactory.Cache([userImage]).then(function(){
-        
-        cardType.id = Math.random();
-        $scope.cards.push(angular.extend({},cardType));
-        sortCards();
-        //console.log(cardType.id);
+            var cardType = {image : pictureUrl, username : firstName};
+            $ImageCacheFactory.Cache([pictureUrl]).then(function(){
+              cardType.id = Math.random();
+              $scope.cards.push(angular.extend({},cardType));
+              sortCards();
+            },function(failed){
+              console.log("failed");
+            });
+          }else{
 
-      },function(failed){
-        console.log("failed");
-      });
+          }
+        });
+      }else{
+
+      }
     });
+
   };
 
   $scope.cardSwipedLeft = function(index) {

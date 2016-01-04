@@ -94,14 +94,14 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
 
 .run(function(){
   Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd", "OYtwjvjKod7pohTqvl5F6qzSOwGfNMPNRDyGZxgN");
-   window.fbAsyncInit = function() {
-    Parse.FacebookUtils.init({ // this line replaces FB.init({
-      appId      : '661996340610249', // Facebook App ID
-      status     : true,  // check Facebook Login status
-      cookie     : true,  // enable cookies to allow Parse to access the session
-      xfbml      : true,  // initialize Facebook social plugins on the page
-      version    : 'v2.3' // point to the latest Facebook Graph API version
-    });
+  window.fbAsyncInit = function() {
+  Parse.FacebookUtils.init({ // this line replaces FB.init({
+    appId      : '661996340610249', // Facebook App ID
+    status     : true,  // check Facebook Login status
+    cookie     : true,  // enable cookies to allow Parse to access the session
+    xfbml      : true,  // initialize Facebook social plugins on the page
+    version    : 'v2.3' // point to the latest Facebook Graph API version
+  });
 
         // Run code after the Facebook SDK is loaded.
   };

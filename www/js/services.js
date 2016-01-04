@@ -72,12 +72,33 @@ angular.module('starter.services', [])
     return (isAuthenticated && authorizedRoles.indexOf(role) !== -1);
   };
 
+  var storeUserInformationOnServer = function(parseUser, dataFb){
+    parseUser.set("gender",dataFb.gender);
+    parseUser.set("birthday",dataFb.birthday);
+    parseUser.set("firstName",dataFb.first_name);
+    parseUser.set("lastName",dataFb.last_name);
+    parseUser.set("fbId",dataFb.id);
+    parseUser.save(null, {
+      success: function(user) {
+        // This succeeds, since the user was authenticated on the device
+
+        // Get the user from a non-authenticated method
+        console.log("storedInfo");
+        
+      },error: function(user, error) {
+        console.log(error);
+      }
+    });
+
+  }
+
   loadUserCredentials();
  
   return {
     login: login,
     logout: logout,
     isAuthorized: isAuthorized,
+    storeUserInformationOnServer: storeUserInformationOnServer,
     isAuthenticated: function() {return isAuthenticated;},
     username: function() {return username;},
     role: function() {return role;}
@@ -130,6 +151,29 @@ angular.module('starter.services', [])
   return {
     storeLoginSettings: storeLoginSettings,
     username: function() {return username;}
+  };
+})
+
+.service('MatchingService', function($q) {
+
+  var getUserOfGenderAndAgeAndDistance = function(){
+    var query = new Parse.Query(Parse.User);
+    var deferred = $q.defer();
+
+    query.equalTo("gender", "female"); // find all the women
+    query.limit(10);
+    query.find({
+      success: function(women) {
+        deferred.resolve(women);
+      }, error: function(){
+        deferred.reject(null);
+      }
+    });
+    return deferred.promise;
+  }
+
+  return {
+    getUserOfGenderAndAgeAndDistance: getUserOfGenderAndAgeAndDistance
   };
 })
 
