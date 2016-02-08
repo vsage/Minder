@@ -4,7 +4,7 @@ angular.module('starter.services', [])
 //Gestion du Login
 
 .service('AuthService', function($q, $http, USER_ROLES) {
-  var LOCAL_TOKEN_KEY = 'serverToken';
+/*  var LOCAL_TOKEN_KEY = 'serverToken';
   var username = '';
   var isAuthenticated = false;
   var role = '';
@@ -70,7 +70,7 @@ angular.module('starter.services', [])
       authorizedRoles = [authorizedRoles];
     }
     return (isAuthenticated && authorizedRoles.indexOf(role) !== -1);
-  };
+  };*/
 
   var storeUserInformationOnServer = function(parseUser, dataFb){
     parseUser.set("gender",dataFb.gender);
@@ -92,16 +92,21 @@ angular.module('starter.services', [])
 
   }
 
-  loadUserCredentials();
+  var logout = function() {
+    /*destroyUserCredentials();*/
+    window.localStorage.clear();
+  };
+
+/*  loadUserCredentials();*/
  
   return {
-    login: login,
     logout: logout,
-    isAuthorized: isAuthorized,
-    storeUserInformationOnServer: storeUserInformationOnServer,
-    isAuthenticated: function() {return isAuthenticated;},
+/*    login: login,
+    isAuthorized: isAuthorized,*/
+    storeUserInformationOnServer: storeUserInformationOnServer
+/*    isAuthenticated: function() {return isAuthenticated;},
     username: function() {return username;},
-    role: function() {return role;}
+    role: function() {return role;}*/
   };
 })
 
@@ -123,6 +128,7 @@ angular.module('starter.services', [])
   }
 
   var storeLoginSettings = function(response){
+    storeSimpleValue("fbId",response.id);
     storeSimpleValue("userFirstName",response.first_name);
     storeSimpleValue("userLastName",response.last_name);
     if(!window.localStorage.getItem("pictures")){
@@ -138,13 +144,14 @@ angular.module('starter.services', [])
     var age = getAge(response.birthday);
     storeSimpleValue("age",age);
     storeSimpleValue("gender",response.gender);
+    storeSimpleValue("genderToCall",response.gender=="male"?"female":"male");
+
 
     /*$timeout(function(){
         $rootScope.$broadcast('settingsStored');
     }, 1000);*/
     /*$rootScope.$broadcast('settingsStored');*/
     $rootScope.$broadcast('settingsStored');
-    console.log("broadcast");
   }
 
 
@@ -156,11 +163,10 @@ angular.module('starter.services', [])
 
 .service('MatchingService', function($q) {
 
-  var getUserOfGenderAndAgeAndDistance = function(){
+  var getUsersOfGenderAndAgeAndDistance = function(gender){
     var query = new Parse.Query(Parse.User);
     var deferred = $q.defer();
-
-    query.equalTo("gender", "female"); // find all the women
+    query.equalTo("gender", gender); // find all the women
     query.limit(10);
     query.find({
       success: function(women) {
@@ -172,13 +178,36 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
+  var retrieveLikesArray = function(likesArray){
+    var query = new Parse.Query(likesArray);
+    var deferred = $q.defer();
+    query.equalTo("userId", Parse.User.current().id);
+    query.limit(1);
+    query.find({
+      success: function(result) {
+        if(result.length == 0){
+          deferred.reject(null);
+        }else{
+          deferred.resolve(result);
+        }
+        // Do something with the returned Parse.Object values
+      },
+      error: function(error) {
+        deferred.reject(null);
+        alert("Error: " + error.code + " " + error.message);
+      }
+    });
+    return deferred.promise;
+  }
+
   return {
-    getUserOfGenderAndAgeAndDistance: getUserOfGenderAndAgeAndDistance
+    getUsersOfGenderAndAgeAndDistance: getUsersOfGenderAndAgeAndDistance,
+    retrieveLikesArray: retrieveLikesArray
   };
 })
 
 
-.factory('AuthInterceptor', function ($rootScope, $q, AUTH_EVENTS) {
+/*.factory('AuthInterceptor', function ($rootScope, $q, AUTH_EVENTS) {
   return {
     responseError: function (response) {
       $rootScope.$broadcast({
@@ -193,7 +222,7 @@ angular.module('starter.services', [])
 .config(function ($httpProvider) {
    $httpProvider.interceptors.push('AuthInterceptor');
 })
-
+*/
 
 
 //Gestion du Chat

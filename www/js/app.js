@@ -82,7 +82,7 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
     views: {
       'main': {
         templateUrl: 'templates/main.html',
-        controller: 'AccountCtrl'
+        controller: 'MainCtrl'
       }
     }
   });

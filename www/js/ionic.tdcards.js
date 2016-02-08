@@ -370,7 +370,7 @@
             card = existingCards[i];
             if(!card) continue;
             if(i > 0) {
-              card.style.transform = card.style.webkitTransform = 'translate3d(0, ' + (i * 4) + 'px, 0)';
+              card.style.transform = card.style.webkitTransform = 'translate3d(0, ' + (i * 0) + 'px, 0)';
             }
             card.style.zIndex = (existingCards.length - i);
 
@@ -383,14 +383,14 @@
 
         var bringCardUp = function(card, amt, max) {
           //console.log("METHOD CALLED");
-          var position, top, newTop;
+/*          var position, top, newTop;
           position = card.style.transform || card.style.webkitTransform;
           top = parseInt(position && position.split(',')[1] || 0);
           //console.log(window.getComputedStyle(secondCard));
           newTop = Math.max(0, Math.min(max, max - (max * Math.abs(amt))));
           //console.log(top);
           //console.log(newTop);
-          card.style.transform = card.style.webkitTransform = 'translate3d(0, ' + newTop + 'px, 0)';
+          card.style.transform = card.style.webkitTransform = 'translate3d(0, ' + newTop + 'px, 0)';*/
         };
 
         this.partial = function(amt) {
