@@ -136,7 +136,8 @@ angular.module('starter.controllers', [])
     AuthService.logout();
     $state.go('login');
   };
-  console.log(window.localStorage.getItem("fbId"));
+
+  //console.log(window.localStorage.getItem("fbId"));
   if (!window.localStorage.getItem("fbId")) {
     $scope.logout();
   };
@@ -144,7 +145,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('CardsCtrl', function($scope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB, MatchingService, $q, $timeout) {
+.controller('CardsCtrl', function($scope, $rootScope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB, MatchingService, $q, $timeout) {
   
   var cardSwipedLastDirection = "";
   var showSpinner=false;
@@ -171,53 +172,67 @@ angular.module('starter.controllers', [])
     }
   };
 
+//method called when a card is physically destroyed. Only does something when the user liked the person (for the moment)
   $scope.cardDestroyed = function(index) {
+    var card = $scope.cards[index];
+    if(!card){$scope.addCards(2); return;}
     if (cardSwipedLastDirection=="right") {
-      if(!$scope.likesArray){
-        var Likes = Parse.Object.extend("Likes");
-        MatchingService.retrieveLikesArray(Likes).then(function(result){
-          $scope.likesArray = result[0];
-          $scope.likesArray.addUnique("likes", $scope.cards[0].userId);
-          $scope.likesArray.save();
-        },function(){
-          var likes = new Likes();
-          likes.set("userId",Parse.User.current().id);
-          likes.save(null, {
-            success: function(likes) {
-              // Execute any logic that should take place after the object is saved.
-              console.log('New object created with objectId: ' + likes.id);
-              $scope.likesArray = likes;
-              $scope.likesArray.addUnique("likes", $scope.cards[0].userId);
-              $scope.likesArray.save();
-            },
-            error: function(likes, error) {
-              // Execute any logic that should take place if the save fails.
-              // error is a Parse.Error with an error code and message.
-              alert('Failed to create new object, with error code: ' + error.message);
-            }
-          });
-        });
-      }else{
-        $scope.likesArray.addUnique("likes", $scope.cards[0].userId);
-        $scope.likesArray.save();
-      }
+      updateServerWithUserAction(card, "liked");
+    }else{
+      updateServerWithUserAction(card);
     }
     $scope.cards.splice(index, 1);
-    console.log(cardSwipedLastDirection + "SWIPE");
-    $scope.addCard();
+    $scope.addCards(1);
     $scope.noText=0;
     $scope.yesText=0;  
   };
 
+  var updateServerWithUserAction = function(card, liked){
+    if(!$scope.likesArray){
+      var Likes = Parse.Object.extend("Likes");
+      MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(result){
+        $scope.likesArray = result[0];
+        $scope.likesArray.addUnique("seen", card.userId);
+        liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
+        $scope.likesArray.save();
+      },function(){
+        var likes = new Likes();
+        likes.set("userId",Parse.User.current().id);
+        likes.save(null, {
+          success: function(likes) {
+            // Execute any logic that should take place after the object is saved.
+            console.log('New object created with objectId: ' + likes.id);
+            $scope.likesArray = likes;
+            $scope.likesArray.addUnique("seen", card.userId);
+            liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
+            $scope.likesArray.save();
+          },
+          error: function(likes, error) {
+            // Execute any logic that should take place if the save fails.
+            // error is a Parse.Error with an error code and message.
+            alert('Failed to create new object, with error code: ' + error.message);
+          }
+        });
+      });
+    }else{
+      $scope.likesArray.addUnique("seen", card.userId);
+      liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
+      $scope.likesArray.save();
+    };
+    if (card.likesArray) {
+      if (card.likesArray.get("likes").indexOf(Parse.User.current().id)!==-1) {
+        //console.log('ce mec me kiffe : MATCH');  
+      };
+    };
+  }
 
+  //request the information to facebook
   $scope.getUserFbInfo = function(fbId){
-    //console.log(fbId);
     var deferred = $q.defer();
       FB.api(fbId, {
           fields: 'picture.height(800).width(800)',
-      }, function(response) {
+      }, function(response) {       
           if (!response || response.error) {
-            //console.log(response);
             deferred.reject('Error occured');
           } else {
             deferred.resolve(response);
@@ -226,47 +241,98 @@ angular.module('starter.controllers', [])
     return deferred.promise;
   }
 
-  $scope.addCard = function() {
+
+//tente d'ajouter une ou plusieurs cartes carte dans $scope.cards, s'il n'en existe plus, requête le server pour en avoir d'autres.
+  $scope.addCards = function(nbOfCardsToCreate) {
     var genderToCall = window.localStorage.getItem("genderToCall");
-    if($scope.listOfUsers.length == 0){
-      MatchingService.getUsersOfGenderAndAgeAndDistance(genderToCall).then(function(persons) {
-        console.log(persons);
+    //console.log(genderToCall);
+    if($scope.listOfUsers.length == 0 && !$scope.likesArray){
+      var Likes = Parse.Object.extend("Likes");
+      MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(likesArray){
+        $scope.likesArray = likesArray[0];
+        return $scope.likesArray;
+      }).then(function(likesArray){
+          MatchingService.getUsersOfGenderAndAgeAndDistance(genderToCall,likesArray).then(function(persons) {
+          if(persons && persons.length>0){
+            $scope.listOfUsers = persons;
+            insertCardFromListOfUsers(nbOfCardsToCreate); 
+          }else{
+              
+          }
+         });
+        }
+      );
+    }else if ($scope.listOfUsers.length == 0 && $scope.likesArray){
+      MatchingService.getUsersOfGenderAndAgeAndDistance(genderToCall,$scope.likesArray).then(function(persons) {
         if(persons && persons.length>0){
-          i = Math.floor(Math.random() * persons.length);
-          var fbId = persons[i].get("fbId");
-          var description = persons[i].get("description");
-          var firstName = persons[i].get("firstName");
-          $scope.getUserFbInfo(fbId).then(function(data){
-            if(data){
-              var pictureUrl = data.picture.data.url;
-              var cardType = {image : pictureUrl, username : firstName};
-              cardType.userId = persons[i].id;
-              $ImageCacheFactory.Cache([pictureUrl]).then(function(){
-                $scope.cards.push(angular.extend({},cardType));
-                sortCards();
-              },function(failed){
-                console.log("failed");
-              });
-            }else{
-            }
-          });
+          $scope.listOfUsers = persons;
+          insertCardFromListOfUsers(nbOfCardsToCreate); 
         }else{
-          alert('Plus personne de dispo');
+            
         }
       });
+    }else{
+      insertCardFromListOfUsers(nbOfCardsToCreate);
     }
   };
 
+  var insertCardFromListOfUsers = function(nbOfCardsToInsert){
+    maxNbOfCards = Math.min(nbOfCardsToInsert, $scope.listOfUsers.length);
+    for (var j = 0; j < maxNbOfCards; j++) {
+      var fbId = $scope.listOfUsers[j].get("fbId");
+      var description = $scope.listOfUsers[j].get("description");
+      var firstName = $scope.listOfUsers[j].get("firstName");
+      //passage de la variable de loop à la fonction d'en dessous (beau)
+      (function(j){
+        $scope.getUserFbInfo(fbId).then(function(data){
+          if(data){
+            var pictureUrl = data.picture.data.url;
+            var cardType = {image : pictureUrl, username : firstName};
+            cardType.userId = $scope.listOfUsers[j].id;
+            $ImageCacheFactory.Cache([pictureUrl]).then(function(){
+              var Likes = Parse.Object.extend("Likes");
+              //get the likesArray of the encountered user (if it exists)
+              MatchingService.retrieveLikesArray(Likes,$scope.listOfUsers[j].id).then(function(likesArray){
+                cardType.likesArray = likesArray[0];
+                $scope.cards.push(angular.extend({},cardType));
+                console.log($scope.cards);
+                sortCards();
+                $scope.listOfUsers.splice(0,1);
+              },function(){
+                $scope.cards.push(angular.extend({},cardType));
+                console.log($scope.cards);
+                sortCards();
+                $scope.listOfUsers.splice(0,1);
+              });
+            },function(failed){
+              console.log("failed");
+            });
+          }else{
+          }
+        },function(){
+          alert("Session expirée, veuillez vous reconnecter");
+          $scope.$parent.logout();
+        });
+      })(j);
+    }
+  };
+
+
+  //Si jamais la vue est vide ajoute 4 cartes
   $scope.$parent.$on("$ionicView.enter",function(){
-    console.log($scope.cards);
-   if (!$scope.cards||$scope.cards.length==0) {
-    for (var i = 0; i < 3; i++) {
-      console.log("first time adding cards")
-      $timeout($scope.addCard(),i*1000);
+      if (!$scope.cards||$scope.cards.length==0) {
+        console.log("adding cards from view ENTER")
+        $scope.addCards(4);
       };
-    };
   });
 
+  //reinitialize array of cards when logout (from AuthService)
+  $scope.$on('logout', function() {
+    $scope.cards = Array.prototype.slice.call([], 0);
+    $scope.likesArray = null;
+    $rootScope.settings = null;
+    $scope.listOfUsers = [];
+  });
 
   $scope.cardSwipedLeft = function(index) {
     cardSwipedLastDirection = "left";
@@ -423,9 +489,8 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, $ionicPopup, $timeout, Socket, Chat, Chats) {
+  
   $scope.chat = Chats.get($stateParams.chatId);
-
-
   $scope.data = {};
   $scope.data.message = "";
   $scope.messages = Chat.getMessages();

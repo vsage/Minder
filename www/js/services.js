@@ -3,7 +3,7 @@ angular.module('starter.services', [])
 
 //Gestion du Login
 
-.service('AuthService', function($q, $http, USER_ROLES) {
+.service('AuthService', function($q, $http, USER_ROLES, $rootScope) {
 /*  var LOCAL_TOKEN_KEY = 'serverToken';
   var username = '';
   var isAuthenticated = false;
@@ -83,7 +83,7 @@ angular.module('starter.services', [])
         // This succeeds, since the user was authenticated on the device
 
         // Get the user from a non-authenticated method
-        console.log("storedInfo");
+        //console.log("storedInfo");
         
       },error: function(user, error) {
         console.log(error);
@@ -95,6 +95,8 @@ angular.module('starter.services', [])
   var logout = function() {
     /*destroyUserCredentials();*/
     window.localStorage.clear();
+    $rootScope.$broadcast('logout');
+    console.log(window.localStorage.getItem("genderToCall"));
   };
 
 /*  loadUserCredentials();*/
@@ -163,14 +165,16 @@ angular.module('starter.services', [])
 
 .service('MatchingService', function($q) {
 
-  var getUsersOfGenderAndAgeAndDistance = function(gender){
+  var getUsersOfGenderAndAgeAndDistance = function(gender, likesArray){
+    console.log("gender called frome getUsers : " + gender + likesArray);
     var query = new Parse.Query(Parse.User);
     var deferred = $q.defer();
-    query.equalTo("gender", gender); // find all the women
+    query.equalTo("gender", gender);
+    likesArray?query.notContainedIn("objectId",likesArray.get("seen")):void 0;
     query.limit(10);
     query.find({
-      success: function(women) {
-        deferred.resolve(women);
+      success: function(people) {
+        deferred.resolve(people);
       }, error: function(){
         deferred.reject(null);
       }
@@ -178,10 +182,10 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
-  var retrieveLikesArray = function(likesArray){
+  var retrieveLikesArray = function(likesArray,userId){
     var query = new Parse.Query(likesArray);
     var deferred = $q.defer();
-    query.equalTo("userId", Parse.User.current().id);
+    query.equalTo("userId", userId);
     query.limit(1);
     query.find({
       success: function(result) {
@@ -228,7 +232,7 @@ angular.module('starter.services', [])
 //Gestion du Chat
 
 .factory('Socket', function(socketFactory){
-  var myIoSocket = io.connect('http://chat.socket.io:80');
+  var myIoSocket = io.connect('http://localhost:3000');
   mySocket = socketFactory({
     ioSocket: myIoSocket
   });
@@ -318,7 +322,10 @@ angular.module('starter.services', [])
 
   var addMessage = function(msg){
     msg.notification = msg.notification || false;
-    messages.push(msg);
+    messages.push({
+        username: "ricardo",
+        message: msg
+      });
     scrollBottom();
   };
 
@@ -348,7 +355,7 @@ angular.module('starter.services', [])
         message: msg
       });
       scrollBottom();
-      Socket.emit('new message', msg);
+      Socket.emit('send message', msg);
     },
     scrollBottom: function(){
       scrollBottom();

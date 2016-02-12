@@ -17,10 +17,10 @@
       </div>
     </td-card>
   </td-cards>
-  <ion-spinner class="spinner-assertive spinner-wait-pic" icon="ripple" ng-click="cardDestroyed($index)"></ion-spinner>
+  <ion-spinner class="spinner-assertive spinner-wait-pic" icon="ripple" ng-click="cardDestroyed(0)"></ion-spinner>
   <div class="row buttons-choice-row">
-  	 <div class="col col-33"><button class="button button-clear button-assertive button-full " ng-click="cardSwipedLeft($index); cardDestroyed($index);">Non</button></div>
-  	 <div class="col col-33 col-offset-33"><button class="button button-clear button-balanced button-full" ng-click="cardDestroyed($index);">Like</button></div>
+  	 <div class="col col-33"><button class="button button-clear button-assertive button-full " ng-click="cardSwipedLeft(0); cardDestroyed(0);">Non</button></div>
+  	 <div class="col col-33 col-offset-33"><button class="button button-clear button-balanced button-full" ng-click="cardSwipedRight(0); cardDestroyed(0);">Like</button></div>
   	
   </div>
   
