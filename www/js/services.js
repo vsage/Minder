@@ -96,7 +96,7 @@ angular.module('starter.services', [])
     /*destroyUserCredentials();*/
     window.localStorage.clear();
     $rootScope.$broadcast('logout');
-    console.log(window.localStorage.getItem("genderToCall"));
+    //console.log(window.localStorage.getItem("genderToCall"));
   };
 
 /*  loadUserCredentials();*/
@@ -190,7 +190,7 @@ angular.module('starter.services', [])
     query.find({
       success: function(result) {
         if(result.length == 0){
-          deferred.reject(null);
+          deferred.resolve(null);
         }else{
           deferred.resolve(result);
         }

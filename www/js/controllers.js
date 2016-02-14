@@ -191,28 +191,32 @@ angular.module('starter.controllers', [])
     if(!$scope.likesArray){
       var Likes = Parse.Object.extend("Likes");
       MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(result){
-        $scope.likesArray = result[0];
-        $scope.likesArray.addUnique("seen", card.userId);
-        liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
-        $scope.likesArray.save();
+        if (result) {
+          $scope.likesArray = result[0];
+          $scope.likesArray.addUnique("seen", card.userId);
+          liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
+          $scope.likesArray.save();
+        }else{
+          var likes = new Likes();
+          likes.set("userId",Parse.User.current().id);
+          likes.save(null, {
+            success: function(likes) {
+              // Execute any logic that should take place after the object is saved.
+              console.log('New object created with objectId: ' + likes.id);
+              $scope.likesArray = likes;
+              $scope.likesArray.addUnique("seen", card.userId);
+              liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
+              $scope.likesArray.save();
+            },
+            error: function(likes, error) {
+              // Execute any logic that should take place if the save fails.
+              // error is a Parse.Error with an error code and message.
+              alert('Failed to create new object, with error code: ' + error.message);
+            }
+          });
+        }
       },function(){
-        var likes = new Likes();
-        likes.set("userId",Parse.User.current().id);
-        likes.save(null, {
-          success: function(likes) {
-            // Execute any logic that should take place after the object is saved.
-            console.log('New object created with objectId: ' + likes.id);
-            $scope.likesArray = likes;
-            $scope.likesArray.addUnique("seen", card.userId);
-            liked?$scope.likesArray.addUnique("likes", card.userId):void 0;
-            $scope.likesArray.save();
-          },
-          error: function(likes, error) {
-            // Execute any logic that should take place if the save fails.
-            // error is a Parse.Error with an error code and message.
-            alert('Failed to create new object, with error code: ' + error.message);
-          }
-        });
+        //probleme dans retrievelikesarray
       });
     }else{
       $scope.likesArray.addUnique("seen", card.userId);
@@ -249,7 +253,7 @@ angular.module('starter.controllers', [])
     if($scope.listOfUsers.length == 0 && !$scope.likesArray){
       var Likes = Parse.Object.extend("Likes");
       MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(likesArray){
-        $scope.likesArray = likesArray[0];
+        $scope.likesArray = likesArray?likesArray[0]:null;
         return $scope.likesArray;
       }).then(function(likesArray){
           MatchingService.getUsersOfGenderAndAgeAndDistance(genderToCall,likesArray).then(function(persons) {
@@ -284,6 +288,7 @@ angular.module('starter.controllers', [])
       var firstName = $scope.listOfUsers[j].get("firstName");
       //passage de la variable de loop à la fonction d'en dessous (beau)
       (function(j){
+        console.log(fbId);
         $scope.getUserFbInfo(fbId).then(function(data){
           if(data){
             var pictureUrl = data.picture.data.url;
@@ -293,7 +298,7 @@ angular.module('starter.controllers', [])
               var Likes = Parse.Object.extend("Likes");
               //get the likesArray of the encountered user (if it exists)
               MatchingService.retrieveLikesArray(Likes,$scope.listOfUsers[j].id).then(function(likesArray){
-                cardType.likesArray = likesArray[0];
+                cardType.likesArray = likesArray?likesArray[0]:null;
                 $scope.cards.push(angular.extend({},cardType));
                 console.log($scope.cards);
                 sortCards();
@@ -310,8 +315,9 @@ angular.module('starter.controllers', [])
           }else{
           }
         },function(){
-          alert("Session expirée, veuillez vous reconnecter");
-          $scope.$parent.logout();
+          console.log("logout");
+          //alert("Session expirée, veuillez vous reconnecter");
+          //$scope.$parent.logout();
         });
       })(j);
     }
