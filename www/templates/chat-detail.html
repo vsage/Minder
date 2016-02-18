@@ -14,12 +14,12 @@
       <span ng-show="!message.notification">
         <p class="username" ng-show="!messageIsMine(message.username)">{{message.username}}</p>
         <div ng-class='getBubbleClass(message.username)'>
-          <p ng-bind="message.message"></p>
+          <p ng-bind="message.msg"></p>
         </div>
         <div class="clear"></div>
       </span>
       <span ng-show="message.notification">
-        <p class="notification" ng-bind="message.message"></p>
+        <p class="notification" ng-bind="message.msg"></p>
       </span>
     </span>
 
@@ -27,14 +27,14 @@
 
   </ion-content>
 
-  <form name="sendMessageForm" ng-submit="sendMessage(data.message)" novalidate>
+  <form name="sendMessageForm" ng-submit="sendMessage(data.msg)" novalidate>
       <ion-footer-bar class="bar-stable item-input-inset message-footer" keyboard-attach>
           <label class="item-input-wrapper">
-              <input id="msg-input" ng-change="updateTyping()" ng-model="data.message" class="input-message" type="text" placeholder="Message">
+              <input id="msg-input" ng-change="updateTyping()" ng-model="data.msg" class="input-message" type="text" placeholder="Message">
           </label>
           <div class="footer-btn-wrap">
             <button class="button button-icon icon ion-ios-paperplane footer-btn" type="submit"
-                ng-disabled="!data.message || data.message === ''">
+                ng-disabled="!data.msg || data.msg === ''">
             </button>
           </div>
       </ion-footer-bar>

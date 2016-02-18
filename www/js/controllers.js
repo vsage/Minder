@@ -498,38 +498,24 @@ angular.module('starter.controllers', [])
   
   $scope.chat = Chats.get($stateParams.chatId);
   $scope.data = {};
-  $scope.data.message = "";
+  $scope.data.msg = "";
   $scope.messages = Chat.getMessages();
   var typing = false;
   var lastTypingTime;
   var TYPING_TIMER_LENGTH = 250;
 
   Socket.on('connect',function(){
-
+    console.log('SET USER ID ');
+    Socket.emit("set userId", Parse.User.current().id);
     if(!$scope.data.username){
-      var nicknamePopup = $ionicPopup.show({
-      template: '<input id="usr-input" type="text" ng-model="data.username" autofocus>',
-      title: 'What\'s your nickname?',
-      scope: $scope,
-      buttons: [{
-          text: '<b>Save</b>',
-          type: 'button-positive',
-          onTap: function(e) {
-            if (!$scope.data.username) {
-              e.preventDefault();
-            } else {
-              return $scope.data.username;
-            }
-          }
-        }]
-      });
-      nicknamePopup.then(function(username) {
-        Socket.emit('add user',username);
-        Chat.setUsername(username);
-      });
+      $scope.data.username = window.localStorage.getItem("userFirstName");
     }
 
   });
+
+  Socket.on("user is", function(data){
+    console.log(data);
+  })
 
   Chat.scrollBottom();
 
@@ -559,7 +545,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.messageIsMine = function(username){
-    return $scope.data.username === username;
+    return Parse.User.current().id === username;
   };
 
   $scope.getBubbleClass = function(username){
@@ -571,8 +557,13 @@ angular.module('starter.controllers', [])
   };
 
   $scope.sendMessage = function(msg){
-    Chat.sendMessage(msg);
-    $scope.data.message = "";
+    data = {
+      msg: msg,
+      from: Parse.User.current().id
+    }
+    console.log("to  " + $stateParams.chatId);
+    Chat.sendMessage(data, $stateParams.chatId);
+    $scope.data.msg = "";
   };
 
 

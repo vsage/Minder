@@ -232,12 +232,15 @@ angular.module('starter.services', [])
 //Gestion du Chat
 
 .factory('Socket', function(socketFactory){
-  var myIoSocket = io.connect('http://localhost:3000');
-  mySocket = socketFactory({
-    ioSocket: myIoSocket
-  });
-  return mySocket;
-})
+
+  var IoSocket = io.connect('http://localhost:8000');
+  //var myIoSocket = io.connect('http://chatserver-swiperz.rhcloud.com:8000');
+
+  ioSocket = socketFactory({
+      ioSocket: IoSocket
+    });
+    return ioSocket;
+  })
 
 .factory('Users', function(){
     var usernames = [];
@@ -283,8 +286,9 @@ angular.module('starter.services', [])
     Users.setNumUsers(data);
   });
 
-  Socket.on('new message', function(msg){
-      addMessage(msg);
+  Socket.on('new message', function(data){
+      addMessage(data);
+      console.log("server response");
   });
 
   Socket.on('typing', function (data) {
@@ -299,7 +303,11 @@ angular.module('starter.services', [])
     removeTypingMessage(data.username);
   });
 
-  Socket.on('user joined', function (data) {
+  Socket.on('user not exist', function(){
+    alert("L'utilisateur n'existe plus !");
+  })
+
+/*  Socket.on('user joined', function (data) {
     var msg = data.username + ' joined';
     var notification = new Notification(data.username,msg);
     addMessage(notification);
@@ -313,18 +321,18 @@ angular.module('starter.services', [])
     addMessage(notification);
     Users.setNumUsers(data);
     Users.deleteUsername(data.username);
-  });
+  });*/
 
   var scrollBottom = function(){
     $ionicScrollDelegate.resize();
     $ionicScrollDelegate.scrollBottom(true);
   };
 
-  var addMessage = function(msg){
-    msg.notification = msg.notification || false;
+  var addMessage = function(data){
+    /*msg.notification = msg.notification || false;*/
     messages.push({
-        username: "ricardo",
-        message: msg
+        username: data.from,
+        msg: data.msg
       });
     scrollBottom();
   };
@@ -349,13 +357,13 @@ angular.module('starter.services', [])
     getMessages: function() {
       return messages;
     },
-    sendMessage: function(msg){
+    sendMessage: function(data, to){
       messages.push({
-        username: username,
-        message: msg
+        username: data.from,
+        msg: data.msg
       });
       scrollBottom();
-      Socket.emit('send message', msg);
+      Socket.emit('chat', data, to);
     },
     scrollBottom: function(){
       scrollBottom();
@@ -364,11 +372,30 @@ angular.module('starter.services', [])
 })
 
 
-.factory('Chats', function() {
+.factory('Chats', function(MatchingService) {
   // Might use a resource here that returns a JSON array
-
+  var chats = [];
   // Some fake testing data
-  var chats = [{
+  if (chats.length == 0) {
+    var Likes = Parse.Object.extend("Likes");
+    MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(data){
+      if(data){
+        //A likes array exists on server
+        likesList = data[0].get("likes");
+        for (var i = 0; i < likesList.length; i++) {
+          var chat = {id: likesList[i],
+            name: likesList[i]
+          };
+          chats.push(chat);
+        };
+      }else{
+
+      }
+    },function(){
+      console.log("Error retrieving likes array");
+    })
+  };
+  /*var chats = [{
     id: 0,
     name: 'Ben Sparrow',
     lastText: 'You on your way?',
@@ -388,12 +415,7 @@ angular.module('starter.services', [])
     name: 'Perry Governor',
     lastText: 'Look at my mukluks!',
     face: 'https://pbs.twimg.com/profile_images/598205061232103424/3j5HUXMY.png'
-  }, {
-    id: 4,
-    name: 'Mike Harrington',
-    lastText: 'This is wicked good ice cream.',
-    face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-  }];
+  }];*/
 
   return {
     all: function() {
