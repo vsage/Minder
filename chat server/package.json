@@ -1,9 +1,40 @@
 {
-	"name":"chat",
-	"version":"0.0.1",
-	"private":"true",
-	"dependencies":{
-		"socket.io":"1.4.5",
-		"express":"4.13.4"
-	}
+  "name": "OpenShift-Sample-App",
+  "version": "1.0.0",
+  "description": "OpenShift Sample Application",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "author": {
+    "name": "OpenShift",
+    "email": "ramr@example.org",
+    "url": "http://www.openshift.com/"
+  },
+  "homepage": "http://www.openshift.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openshift/origin-server"
+  },
+
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+
+  "dependencies": {
+    "optimist": "0.3.x",
+    "express": "~3.4.4",
+    "socket.io": "1.4.5"
+  },
+  "devDependencies": {},
+  "bundleDependencies": [],
+
+  "scripts": { 
+    "start": "node server.js --websocket-port=8000 --log-level=1" 
+},
+  "private": true,
+  "main": "server.js"
 }
