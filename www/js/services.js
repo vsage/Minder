@@ -204,9 +204,33 @@ angular.module('starter.services', [])
     return deferred.promise;
   }
 
+  var retrieveMatchesArray = function(){
+    var Matches = Parse.Object.extend("Matches");
+    var deferred = $q.defer();
+    var first = new Parse.Query(Matches);
+    var second = new Parse.Query(Matches);
+    first.equalTo("first", Parse.User.current().id);
+    second.equalTo("second", Parse.User.current().id);
+    var all = Parse.Query.or(first,second);
+    all.find({
+      success: function(results){
+        if(results.length == 0){
+          deferred.resolve(null);
+        }else{
+          deferred.resolve(results);
+        }
+      },
+      error:function(error){
+        deferred.reject();
+      }
+    });
+    return deferred.promise;
+  }
+
   return {
     getUsersOfGenderAndAgeAndDistance: getUsersOfGenderAndAgeAndDistance,
-    retrieveLikesArray: retrieveLikesArray
+    retrieveLikesArray: retrieveLikesArray,
+    retrieveMatchesArray: retrieveMatchesArray
   };
 })
 
@@ -377,24 +401,41 @@ angular.module('starter.services', [])
   var chats = [];
   // Some fake testing data
   if (chats.length == 0) {
-    var Likes = Parse.Object.extend("Likes");
-    MatchingService.retrieveLikesArray(Likes, Parse.User.current().id).then(function(data){
+    MatchingService.retrieveMatchesArray().then(function(data){
       if(data){
+        console.log(data);
+        var selfId = Parse.User.current().id;
         //A likes array exists on server
-        likesList = data[0].get("likes");
-        for (var i = 0; i < likesList.length; i++) {
-          var chat = {id: likesList[i],
-            name: likesList[i]
+        matchList = data[0];
+        console.log(matchList.get("first"));
+        cleanMatchList = [];
+        for (var i = 0; i < matchList.length; i++) {
+          console.log(matchList.get("first"));
+          if (matchList[i].get("first")==selfId) {
+            otherId = matchList[i].get("second");
+          }else{
+            otherId = matchList[i].get("first");
           };
-          chats.push(chat);
+          cleanMatchList.push(otherId);
         };
+        console.log(cleanMatchList);
+          // var chat = {id: likesList[i],
+          //   name: likesList[i]
+          // };
+          // chats.push(chat);
       }else{
-
+        //no match found 
       }
     },function(){
-      console.log("Error retrieving likes array");
+      console.log("Error retrieving match array");
     })
   };
+
+  var refreshChats = function(){
+    //to do pull to refresh chats from server
+  }
+
+
   /*var chats = [{
     id: 0,
     name: 'Ben Sparrow',
@@ -424,6 +465,7 @@ angular.module('starter.services', [])
     remove: function(chat) {
       chats.splice(chats.indexOf(chat), 1);
     },
+    refreshChats : refreshChats,
     get: function(chatId) {
       for (var i = 0; i < chats.length; i++) {
         if (chats[i].id === parseInt(chatId)) {

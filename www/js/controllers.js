@@ -224,8 +224,21 @@ angular.module('starter.controllers', [])
       $scope.likesArray.save();
     };
     if (card.likesArray) {
-      if (card.likesArray.get("likes").indexOf(Parse.User.current().id)!==-1) {
-        //console.log('ce mec me kiffe : MATCH');  
+      if (liked=="liked" && card.likesArray.get("likes").indexOf(Parse.User.current().id)!==-1) {
+        
+        var Matches = Parse.Object.extend("Matches");
+        var matches = new Matches();
+        matches.set("first", Parse.User.current().id);
+        matches.set("second", card.userId);
+        matches.save(null,{
+          success: function(){
+            console.log('New match created with objectId: ' + matches.id);
+          },
+          error: function(){
+
+          }
+        });
+        console.log('ce mec me kiffe : MATCH');  
       };
     };
   }
