@@ -93,7 +93,9 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
 })
 
 .run(function(){
-  Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd", "OYtwjvjKod7pohTqvl5F6qzSOwGfNMPNRDyGZxgN");
+  // Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd", "OYtwjvjKod7pohTqvl5F6qzSOwGfNMPNRDyGZxgN");
+  Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd");
+  Parse.serverURL = 'https://desolate-anchorage-62270.herokuapp.com/parse';
   window.fbAsyncInit = function() {
   Parse.FacebookUtils.init({ // this line replaces FB.init({
     appId      : '661996340610249', // Facebook App ID

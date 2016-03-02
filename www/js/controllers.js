@@ -36,13 +36,34 @@ angular.module('starter.controllers', [])
     });
   }*/
 
-  var getUserInfo = function(){
+  var getUserInfo = function(user){
     var deferred = $q.defer();
+    FB.getLoginStatus(function(response) {
+      console.log(response);
+      if (response.status === 'connected') {
+        var accessToken = response.authResponse.accessToken;
+      //   FB.api('/me', {
+      //     access_token: accessToken,
+      //     fields: 'first_name,last_name,picture.height(320),birthday,gender',
+      // }, function(response) {
+      //     if (!response || response.error) {
+      //         console.log(response.error);
+              
+      //         //alert("Erreur de connexion, veuillez réessayer plus tard");
+      //     } else {
+      //         console.log("no problemo");
+      //     }
+      // });
+      } 
+    } 
+    );
       FB.api('/me', {
           fields: 'first_name,last_name,picture.height(320),birthday,gender',
       }, function(response) {
           if (!response || response.error) {
+              console.log(response.error);
               deferred.reject('Error occured');
+              //alert("Erreur de connexion, veuillez réessayer plus tard");
           } else {
               deferred.resolve(response);
           }
@@ -51,19 +72,38 @@ angular.module('starter.controllers', [])
   }
 
   $scope.fbLogin = function () {
-    
+    //FB.logout();
     Parse.FacebookUtils.logIn("email,user_birthday", {
       success: function(user) {
+        console.log(user);
         console.log('Facebook login succeeded');
 
-        getUserInfo().then(function(response){
+        getUserInfo(user).then(function(response){
           console.log("LOGIN");
           AuthService.storeUserInformationOnServer(user,response);
           SettingsService.storeLoginSettings(response);
           $state.go('tab.main', {}, {reload: true});
           
           //console.log(response);
-        });
+        },function(){
+
+          FB.getLoginStatus(function(response) {
+          console.log(response);
+          if (response.status === 'connected') {
+            var accessToken = response.authResponse.accessToken;
+            console.log(1);
+          console.log(user.get("authData"));
+          user._logOutWithAll();
+          console.log(user.get("authData"));
+          } 
+        } );
+          
+        }
+        // 
+        // , FB.logout(function(response){
+        //   console.log(response);
+        // })
+        );
         
       },
       error: function(user, error) {
@@ -97,9 +137,24 @@ angular.module('starter.controllers', [])
 
 
   $scope.fbLogout = function () {
-    ngFB.logout().then(
-      function (response) {
-      })
+    var GameScore = Parse.Object.extend("GameScore");
+    var gameScore = new GameScore();
+
+    gameScore.set("score", 1337);
+    gameScore.set("playerName", "Sean Plott");
+    gameScore.set("cheatMode", false);
+
+    gameScore.save(null, {
+      success: function(gameScore) {
+        // Execute any logic that should take place after the object is saved.
+        alert('New object created with objectId: ' + gameScore.id);
+      },
+      error: function(gameScore, error) {
+        // Execute any logic that should take place if the save fails.
+        // error is a Parse.Error with an error code and message.
+        alert('Failed to create new object, with error code: ' + error.message);
+      }
+    });
   };
 
   $scope.fbStatus = function () {
