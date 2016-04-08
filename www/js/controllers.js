@@ -26,7 +26,7 @@ angular.module('starter.controllers', [])
   };*/
 })
 
-.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, ngFB, $q, SettingsService, $rootScope) {
+.controller('LoginCtrl', function($scope, $state, $ionicPopup, AuthService, $q, SettingsService, $rootScope, $firebaseAuth) {
 
 /*  $scope.testParse = function () {
     var TestObject = Parse.Object.extend("BaudelaireObject");
@@ -36,29 +36,11 @@ angular.module('starter.controllers', [])
     });
   }*/
 
-  var getUserInfo = function(user){
+  var getUserInfo = function(accessToken){
     var deferred = $q.defer();
-    FB.getLoginStatus(function(response) {
-      console.log(response);
-      if (response.status === 'connected') {
-        var accessToken = response.authResponse.accessToken;
-      //   FB.api('/me', {
-      //     access_token: accessToken,
-      //     fields: 'first_name,last_name,picture.height(320),birthday,gender',
-      // }, function(response) {
-      //     if (!response || response.error) {
-      //         console.log(response.error);
-              
-      //         //alert("Erreur de connexion, veuillez réessayer plus tard");
-      //     } else {
-      //         console.log("no problemo");
-      //     }
-      // });
-      } 
-    } 
-    );
       FB.api('/me', {
           fields: 'first_name,last_name,picture.height(320),birthday,gender',
+          access_token : accessToken
       }, function(response) {
           if (!response || response.error) {
               console.log(response.error);
@@ -72,96 +54,36 @@ angular.module('starter.controllers', [])
   }
 
   $scope.fbLogin = function () {
-    //FB.logout();
-    Parse.FacebookUtils.logIn("email,user_birthday", {
-      success: function(user) {
-        console.log(user);
-        console.log('Facebook login succeeded');
+    var ref = new Firebase("https://vivid-fire-2598.firebaseio.com/");
+    // create an instance of the authentication service
+    var auth = $firebaseAuth(ref);
+    // login with Facebook
+    auth.$authWithOAuthPopup("facebook").then(function(authData) {
+      console.log("Logged in as:", authData.facebook.displayName);
+      getUserInfo(authData.facebook.accessToken).then(function(response){
+        console.log(response);
 
-        getUserInfo(user).then(function(response){
-          console.log("LOGIN");
-          AuthService.storeUserInformationOnServer(user,response);
-          SettingsService.storeLoginSettings(response);
-          $state.go('tab.main', {}, {reload: true});
-          
-          //console.log(response);
-        },function(){
-
-          FB.getLoginStatus(function(response) {
-          console.log(response);
-          if (response.status === 'connected') {
-            var accessToken = response.authResponse.accessToken;
-            console.log(1);
-          console.log(user.get("authData"));
-          user._logOutWithAll();
-          console.log(user.get("authData"));
-          } 
-        } );
-          
-        }
-        // 
-        // , FB.logout(function(response){
-        //   console.log(response);
-        // })
-        );
-        
-      },
-      error: function(user, error) {
-        alert("User cancelled the Facebook login or did not fully authorize.");
-      }
+        AuthService.storeUserInformationOnServer(response);
+        SettingsService.storeLoginSettings(response);
+        $state.go('tab.main', {}, {reload: true});
+        //console.log(response);
+      },function(){ 
+      });
+    },{
+        remember: "sessionOnly",
+        scope: "email"
+      }).catch(function(error) {
+      console.log("Authentication failed:", error);
     });
-
-    /*ngFB.login({scope: 'email'}).then(
-        function (response) {
-          
-          if (response.status === 'connected') {
-
-            ngFB.api({
-                path: '/me',
-                params: {fields: 'id,name'}
-              }).then(
-              function (data) {
-                  window.localStorage.setItem("fbId", data.id);
-                  $state.go('tab.main', {}, {reload: true});
-              },
-              function (error) {
-                  alert('Facebook error: ' + error.error_description);
-              });
-                      
-          } else {
-              alert('Facebook login failed');
-          }
-        }
-      );*/
   };
 
 
   $scope.fbLogout = function () {
-    var GameScore = Parse.Object.extend("GameScore");
-    var gameScore = new GameScore();
 
-    gameScore.set("score", 1337);
-    gameScore.set("playerName", "Sean Plott");
-    gameScore.set("cheatMode", false);
-
-    gameScore.save(null, {
-      success: function(gameScore) {
-        // Execute any logic that should take place after the object is saved.
-        alert('New object created with objectId: ' + gameScore.id);
-      },
-      error: function(gameScore, error) {
-        // Execute any logic that should take place if the save fails.
-        // error is a Parse.Error with an error code and message.
-        alert('Failed to create new object, with error code: ' + error.message);
-      }
-    });
   };
 
   $scope.fbStatus = function () {
-    ngFB.getLoginStatus().then(
-      function (response) {
-        console.log(response);
-      })
+
   };
 
   $scope.data = {};
@@ -200,7 +122,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('CardsCtrl', function($scope, $rootScope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, ngFB, MatchingService, $q, $timeout) {
+.controller('CardsCtrl', function($scope, $rootScope, $http, TDCardDelegate, $ImageCacheFactory, $document, $ionicModal, $ionicSlideBoxDelegate, MatchingService, $q, $timeout) {
   
   var cardSwipedLastDirection = "";
   var showSpinner=false;
@@ -396,7 +318,7 @@ angular.module('starter.controllers', [])
   $scope.$parent.$on("$ionicView.enter",function(){
       if (!$scope.cards||$scope.cards.length==0) {
         console.log("adding cards from view ENTER")
-        $scope.addCards(4);
+        //$scope.addCards(4);
       };
   });
 

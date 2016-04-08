@@ -72,24 +72,23 @@ angular.module('starter.services', [])
     return (isAuthenticated && authorizedRoles.indexOf(role) !== -1);
   };*/
 
-  var storeUserInformationOnServer = function(parseUser, dataFb){
-    parseUser.set("gender",dataFb.gender);
-    parseUser.set("birthday",dataFb.birthday);
-    parseUser.set("firstName",dataFb.first_name);
-    parseUser.set("lastName",dataFb.last_name);
-    parseUser.set("fbId",dataFb.id);
-    parseUser.save(null, {
-      success: function(user) {
-        // This succeeds, since the user was authenticated on the device
-
-        // Get the user from a non-authenticated method
-        //console.log("storedInfo");
-        
-      },error: function(user, error) {
-        console.log(error);
+  var storeUserInformationOnServer = function(dataFb){ 
+    var usersRef = new Firebase("https://vivid-fire-2598.firebaseio.com/users");
+    var fbId = dataFb.id;
+    usersRef.child(fbId).once("value",function(snapshot){
+      if(!snapshot.exists()){
+        usersRef.child(fbId).set({
+          "gender":dataFb.gender,
+          "birthday":dataFb.birthday,
+          "firstName":dataFb.first_name,
+          "lastName":dataFb.last_name,
+          "fbId":dataFb.id
+        });
+        console.log("Saved user to db");
+      }else{
+        console.log(fbId + "Already exists");
       }
-    });
-
+    })
   }
 
   var logout = function() {

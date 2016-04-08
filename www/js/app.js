@@ -5,11 +5,10 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.tinderCards', 'ionic.ion.imageCacheFactory','ngOpenFB'])
+angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.tinderCards', 'ionic.ion.imageCacheFactory','firebase'])
 
-.run(function($ionicPlatform, ngFB) {
+.run(function($ionicPlatform) {
 
-  ngFB.init({appId: '661996340610249'});
 
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -93,22 +92,14 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
 })
 
 .run(function(){
-  // Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd", "OYtwjvjKod7pohTqvl5F6qzSOwGfNMPNRDyGZxgN");
-  Parse.initialize("WNmIbiRj7qJyGKia2kgqc7fNtnrt5Wioc7X9N5wd");
-  Parse.serverURL = 'https://desolate-anchorage-62270.herokuapp.com/parse';
   window.fbAsyncInit = function() {
-  Parse.FacebookUtils.init({ // this line replaces FB.init({
-    appId      : '661996340610249', // Facebook App ID
-    status     : true,  // check Facebook Login status
-    cookie     : true,  // enable cookies to allow Parse to access the session
-    xfbml      : true,  // initialize Facebook social plugins on the page
-    version    : 'v2.3' // point to the latest Facebook Graph API version
-  });
-
-        // Run code after the Facebook SDK is loaded.
+    FB.init({
+      appId      : 'your-app-id',
+      xfbml      : true,
+      version    : 'v2.5'
+    });
   };
-
-      (function(d, s, id){
+  (function(d, s, id){
     var js, fjs = d.getElementsByTagName(s)[0];
     if (d.getElementById(id)) {return;}
     js = d.createElement(s); js.id = id;
@@ -116,7 +107,7 @@ angular.module('starter', ['ionic', 'btford.socket-io', 'starter.controllers', '
     fjs.parentNode.insertBefore(js, fjs);
   }(document, 'script', 'facebook-jssdk'));
   //$httpBackend.whenGET(/templates\/\w+.*/).passThrough();
-  //$httpBackend.whenGET(/https:\/\/randomuser.me\/\w+.*/).passThrough();
+  //$
 })
 
 .directive('noScroll', function($document) {
